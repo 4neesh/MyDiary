@@ -21,7 +21,7 @@ export class DiaryComponent implements OnInit, OnDestroy {
   diaryEntriesSub = new Subscription();
 
   ngOnInit(): void {
-    this.diaryEntries = this.diaryDataService.getDiaryEntries();
+    this.diaryDataService.getDiaryEntries();
     this.diaryEntriesSub = this.diaryDataService.diarySubject.subscribe(entries => {
       this.diaryEntries = entries;
     })
