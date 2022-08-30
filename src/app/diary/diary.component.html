@@ -16,8 +16,8 @@
                     <td>{{diary.date}}</td>
                     <td>{{diary.entry}}</td>
                     <td>
-                        <button class="btn btn-primary" (click)="onEdit(i)">Edit</button>   
-                        <button class="btn btn-danger" (click)='onDelete(i)'>Delete</button>
+                        <button class="btn btn-primary" (click)="onEdit(diary.id)">Edit</button>   
+                        <button class="btn btn-danger" (click)='onDelete(diary.id)'>Delete</button>
                     </td>
                 </tr>   
             </tbody>

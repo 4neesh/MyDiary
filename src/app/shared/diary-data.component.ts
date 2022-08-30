@@ -6,19 +6,26 @@ import { DiaryEntry } from "./dairy-entry.model";
 @Injectable({providedIn:"root"})
 export class DiaryDataService{
 
+    public maxId: number;
+
     constructor(private http: HttpClient){}
 
-    updateEntry(index: number, entry: DiaryEntry) {
-      this.diaryEntries[index] = entry;
-      this.diarySubject.next(this.diaryEntries);
+    updateEntry(id: number, entry: DiaryEntry) {
+      this.http.put<{message: string}>('http://localhost:3000/update-entry/' + id, entry).subscribe((jsonData) => {
+        console.log(jsonData.message);
+        this.getDiaryEntries();
+      })
     }
     
     public diarySubject = new Subject<DiaryEntry[]>();
     private diaryEntries: DiaryEntry[] = [];
 
     onDeleteEntry(id: number){
-        this.diaryEntries.splice(id, 1);
-        this.diarySubject.next(this.diaryEntries);
+        
+        this.http.delete<{message: string}>('http://localhost:3000/remove-entry/' + id).subscribe((jsonData) => {
+        console.log(jsonData.message);
+        this.getDiaryEntries();
+        })
     }
 
     getDiaryEntries(){
@@ -28,12 +35,20 @@ export class DiaryDataService{
         })
     }
 
-    getDiaryEntry(index: number){
-        return {...this.diaryEntries[index]};
+    getDiaryEntry(id: number){
+        const index = this.diaryEntries.findIndex(el => {
+            return el.id == id;
+        })
+        return this.diaryEntries[index];
     }
 
     onAddDiaryEntry(diaryEntry: DiaryEntry){
-        this.diaryEntries.push(diaryEntry);
-        this.diarySubject.next(this.diaryEntries);
+        this.http.get<{maxId: number}>('http://localhost:3000/max-id').subscribe((jsonData => {
+            diaryEntry.id = jsonData.maxId + 1;
+            this.http.post<{message: string}>('http://localhost:3000/add-entry', diaryEntry).subscribe((jsonData) => {
+                console.log(diaryEntry);
+                this.getDiaryEntries();
+            })
+        }))
     }
 }
