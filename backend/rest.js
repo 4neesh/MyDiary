@@ -1,13 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const DiaryEntryModel = require('./entry-schema');
+const mongoose = require('mongoose');
+const { update } = require('./entry-schema');
 
 const app = express();
-
-diaryEntries = [
-    {id: 1, date: "March 1st", entry:"Entry 1"},
-    {id: 2, date: "March 11th", entry:"Entry 2"},
-    {id: 3, date: "March 21st", entry:"Entry 3"}, 
-];
+mongoose.connect("//insert mongodb resource here")
+    .then(() => {
+        console.log('Connected to MongoDB')
+    })
+    .catch(() => {
+        console.log('Error connecting to MongoDB');
+    })
 
 app.use(bodyParser.json());
 app.use((req, res, next) => {
@@ -17,49 +21,43 @@ app.use((req, res, next) => {
     next();
 })
 
-app.get('/max-id', (req, res) => {
-    var max  =0;
-    for(var i=0; i<diaryEntries.length; i++){
-        if(diaryEntries[i].id > max){
-            max = diaryEntries[i].id;
-        }
-    }
-    res.json({maxId: max});
-})
-
 app.delete('/remove-entry/:id', (req, res) => {
-
-    const index = diaryEntries.findIndex(el => {
-        return el.id == req.params.id;
-    })
-    diaryEntries.splice(index, 1);
-    res.status(200).json({
-        message: 'Post Deleted'
+    DiaryEntryModel.deleteOne({_id: req.params.id})
+    .then(() => {
+        res.status(200).json({
+            message: 'Post Deleted'
+        })
     })
 })
 
 app.put('/update-entry/:id', (req, res) => {
-    const index = diaryEntries.findIndex(el => {
-        return el.id == req.params.id;
-    })
-    diaryEntries[index] = {id: req.body.id, date: req.body.date, entry: req.body.entry}
-    res.status(200).json({
-        message: 'Update completed'
-    })    
+    const updatedEntry = new DiaryEntryModel({_id: req.body.id, date: req.body.date, entry: req.body.entry})
+    DiaryEntryModel.updateOne({_id: req.body.id}, updatedEntry)
+        .then(() => {
+            res.status(200).json({
+                message: 'Update completed'
+            })    
+        })
 })
 
 app.post('/add-entry', (req,res) => {
-    diaryEntries.push({id: req.body.id, date: req.body.date, entry: req.body.entry});
-    res.status(200).json({
-        message: 'Post submitted'
-    })
+    const diaryEntry = new DiaryEntryModel({date: req.body.date, entry: req.body.entry});
+    diaryEntry.save()
+        .then(() => {
+            res.status(200).json({
+                message: 'Post submitted'
+            })
+        })
 })
 
-
-
 app.get('/diary-entries',(req, res, next) => {
-    res.json({'diaryEntries': diaryEntries});
-
+    DiaryEntryModel.find()
+    .then((data) => {
+        res.json({'diaryEntries': data});
+    })
+    .catch(() => {
+        console.log('Error fetching entries')
+    })
 })
 
 module.exports = app;
