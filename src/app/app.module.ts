@@ -8,13 +8,17 @@ import { DiaryComponent } from './diary/diary.component';
 import { DiaryFormComponent } from './diary-form/diary-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { LoginComponent } from './login/login.component';
+import { SignUpComponent } from './sign-up/sign-up.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     DiaryComponent,
-    DiaryFormComponent
+    DiaryFormComponent,
+    LoginComponent,
+    SignUpComponent
   ],
   imports: [
     BrowserModule,

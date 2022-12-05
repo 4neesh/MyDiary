@@ -2,10 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const DiaryEntryModel = require('./entry-schema');
 const mongoose = require('mongoose');
-const { update } = require('./entry-schema');
+const UserModel = require('./user-model');
+const bcrypt = require('bcrypt');
 
 const app = express();
-mongoose.connect("//insert mongodb resource here")
+mongoose.connect("//enter mongodb src here")    
     .then(() => {
         console.log('Connected to MongoDB')
     })
@@ -58,6 +59,30 @@ app.get('/diary-entries',(req, res, next) => {
     .catch(() => {
         console.log('Error fetching entries')
     })
+})
+
+app.post('/sign-up', (req,res) => {
+
+    bcrypt.hash(req.body.password, 10)
+        .then(hash => {
+            const userModel = new UserModel({
+                username: req.body.username,
+                password: hash
+            })
+
+            userModel.save()
+            .then(result => {
+                res.status(201).json({
+                    message: 'User created',
+                    result: result
+                })
+            })
+            .catch(err => {
+                res.status(500).json({
+                    error: err
+                })
+            })
+        })
 })
 
 module.exports = app;
