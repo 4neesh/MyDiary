@@ -4,6 +4,7 @@ const DiaryEntryModel = require('./entry-schema');
 const mongoose = require('mongoose');
 const UserModel = require('./user-model');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 mongoose.connect("//enter mongodb src here")    
@@ -83,6 +84,39 @@ app.post('/sign-up', (req,res) => {
                 })
             })
         })
+})
+
+app.post('/login', (req,res) => {
+
+    let userFound;
+
+    UserModel.findOne({username: req.body.username})
+        .then(user => {
+            if(!user){
+                return res.status(401).json({
+                    message: 'User not found'
+                })
+            }
+            userFound = user
+            return bcrypt.compare(req.body.password, user.password)
+        })
+    .then(result => {
+        if(!result){
+            return res.status(401).json({
+                message: 'Password is incorrect'
+            })
+        }
+
+        const token = jwt.sign({username: userFound.username, userId: userFound._id}, "secret_string", {expiresIn:"1h"})
+        return res.status(200).json({
+            token: token
+        })
+    })
+    .catch(err => {
+        return res.status(401).json({
+            message: 'Error with authentication'
+        })
+    })
 })
 
 module.exports = app;

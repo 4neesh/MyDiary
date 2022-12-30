@@ -15,4 +15,13 @@ export class AuthService{
             console.log(res);
         })
     }
+
+    loginUser(username: string, password: string){
+        const authData: AuthModel = {username: username, password: password};
+
+        this.http.post('http://localhost:3000/login/', authData)
+            .subscribe(res => {
+                console.log(res);
+            })
+    }
 }
