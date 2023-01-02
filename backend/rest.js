@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-mongoose.connect("//enter mongodb src here")    
+mongoose.connect("mongodb+srv://user:test@cluster0.iydevdn.mongodb.net/diarydb?retryWrites=true&w=majority")    
     .then(() => {
         console.log('Connected to MongoDB')
     })
@@ -18,7 +18,7 @@ mongoose.connect("//enter mongodb src here")
 app.use(bodyParser.json());
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     next();
 })
@@ -42,7 +42,20 @@ app.put('/update-entry/:id', (req, res) => {
         })
 })
 
-app.post('/add-entry', (req,res) => {
+app.post('/add-entry', (req, res, next) => {
+   
+    try{
+        const token = req.headers.authorization;
+        jwt.verify(token, "secret_string")
+        next();
+    }
+    catch(err){
+        res.status(401).json({
+            message:"Error with Authentication token"
+        })
+    }
+    
+}, (req,res) => {
     const diaryEntry = new DiaryEntryModel({date: req.body.date, entry: req.body.entry});
     diaryEntry.save()
         .then(() => {
