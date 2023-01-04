@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-mongoose.connect("mongodb+srv://user:test@cluster0.iydevdn.mongodb.net/diarydb?retryWrites=true&w=majority")    
+mongoose.connect("insert here")    
     .then(() => {
         console.log('Connected to MongoDB')
     })
