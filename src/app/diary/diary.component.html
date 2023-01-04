@@ -7,7 +7,7 @@
             <tr>
                 <th>Date</th>
                 <th>Entry</th>
-                <th>Action</th>
+                <th *ngIf="isAuthenticated">Action</th>
 
             </tr>
             </thead>
@@ -15,7 +15,7 @@
                 <tr *ngFor='let diary of diaryEntries; let i = index'>
                     <td>{{diary.date}}</td>
                     <td>{{diary.entry}}</td>
-                    <td>
+                    <td *ngIf="isAuthenticated">
                         <button class="btn btn-primary" (click)="onEdit(diary.id)">Edit</button>   
                         <button class="btn btn-danger" (click)='onDelete(diary.id)'>Delete</button>
                     </td>
